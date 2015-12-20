@@ -10,4 +10,7 @@
 
 @interface C4QCatFactsDetailViewController : UIViewController
 
+@property (nonatomic) NSString *catFact;
+
+
 @end

@@ -7,10 +7,15 @@
 //
 
 #import "C4QCatFactsDetailViewController.h"
+#import <AFNetworking/AFNetworking.h>
 
-#define CAT_GIF_URL @"http://api.giphy.com/v1/gifs/search?q=funny+cat&api_key=dc6zaTOxFJmzC";
+
+#define CAT_GIF_URL @"http://api.giphy.com/v1/gifs/search?q=funny+cat&api_key=dc6zaTOxFJmzC"
 
 @interface C4QCatFactsDetailViewController ()
+
+@property (weak, nonatomic) IBOutlet UILabel *factLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *catImage;
 
 @end
 
@@ -18,22 +23,30 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    self.factLabel.text = self.catFact;
+    self.catImage.clipsToBounds = YES;
+    
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    
+    [manager GET:@"http://api.giphy.com/v1/gifs/search?q=funny+cat&api_key=dc6zaTOxFJmzC"
+      parameters:nil
+        progress:nil
+         success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+             NSArray *data = responseObject[@"data"];
+             int randomNumber = (arc4random() % data.count) + 1;
+             NSString *imageURLString = data[randomNumber][@"images"][@"fixed_height_still"][@"url"];
+             
+             NSURL *picURL = [NSURL URLWithString:imageURLString];
+             
+             NSData *picData = [NSData dataWithContentsOfURL:picURL];
+             UIImage *image = [UIImage imageWithData:picData];
+             
+             [self.catImage setImage:image];
+             
+         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+             NSLog(@"Error: %@", error);
+         }];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end
